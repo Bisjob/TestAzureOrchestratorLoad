@@ -32,21 +32,24 @@ namespace TestAzureOrchestratorLoad
             FunctionStatus status = new()
             {
                 TaskName = input,
-                Message = "Execute Stage 1"
+                Message = "Executing Stage 1"
             };
             context.SetCustomStatus(status);
             await context.CallActivityAsync<string>(nameof(StartActivity), "Stage 1");
 
-            status.Message = "Execute Stage 2";
+            status.Message = "Executing Stage 2";
             context.SetCustomStatus(status);
             await context.CallActivityAsync<string>(nameof(StartActivity), "Stage 2");
 
-            status.Message = "Execute Stage 3";
+            status.Message = "Executing Stage 3";
             context.SetCustomStatus(status);
             await context.CallActivityAsync<string>(nameof(StartActivity), "Stage 3");
 
             // Wait stop event or delay to restart
             DateTime nextTask = context.CurrentUtcDateTime.AddSeconds(NextExecutionDelay_sec);
+            status.Message = "Waiting stop or next execution";
+            status.NextExecution = nextTask;
+            context.SetCustomStatus(status);
             using (var cts = new CancellationTokenSource())
             {
                 Task sleepingTask = context.CreateTimer(nextTask, cts.Token);
